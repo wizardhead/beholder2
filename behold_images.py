@@ -23,6 +23,10 @@ text_prompts = args.text_prompts or []
 
 util.header('here we go!')
 input_images = os.listdir(args.input)
+
+input_images = [f for f in filter(lambda f: (f[0] != '.'), os.listdir(args.input))]
+input_images.sort()
+
 for i in input_images:
     input_image = os.path.join(args.input, i)
     output_image = i
