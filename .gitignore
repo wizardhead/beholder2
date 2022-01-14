@@ -1,5 +1,9 @@
 */__pycache__
+bin
 ext
+get-pip.py
+pyvenv.cfg
+lib
 CLIP
 RIFE
 taming
