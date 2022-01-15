@@ -21,7 +21,7 @@ last_image_size = None
 image_prompts = args.image_prompts or []
 text_prompts = args.text_prompts or []
 
-util.header('here we go!')
+util.header('Behold Images!')
 input_images = os.listdir(args.input)
 
 input_images = [f for f in filter(lambda f: (f[0] != '.'), os.listdir(args.input))]
@@ -39,5 +39,6 @@ for i in input_images:
     image_size = image.get_size(input_image)
     if image_size != last_image_size:
         interpreter = vqgan.generate_interpreter(image_size, text_prompts, image_prompts)
+    last_image_size = image_size
     interpreter(input_image, output_image, args.iterations)
 

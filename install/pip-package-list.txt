@@ -12,7 +12,7 @@ moviepy>=1.0.3
 # Requirements for VQGAN+CLIP
 ftfy
 regex
-tqdm
+#tqdm (duplicate because RIFE needed it too)
 omegaconf
 pytorch-lightning
 einops
