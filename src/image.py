@@ -35,13 +35,21 @@ def mount(in_path, out_path, size):
         '-extent', '{x}x{y}'.format(x=size[0], y=size[1]),
         out_path])
 
+def resize(in_path, out_path, size):
+    util.cmd([
+        'convert', in_path,
+        '-resize', '{x}x{y}'.format(x=size[0], y=size[1]),
+        out_path])
+
 def sharpen(in_path, out_path, amount):
     util.cmd([
         'convert',
         '-sharpen', amount,
         in_path, out_path])
 
-def tween(from_path, to_path, out_path, exp, index):
+
+def tween(from_path, to_path, out_path, exp):
+    util.logger.debug("Tweening {}->[{}]->{}".format(from_path, exp, to_path))
     rife.inference_img(
       img0_path=from_path,
       img1_path=to_path,
