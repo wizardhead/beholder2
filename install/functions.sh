@@ -29,10 +29,10 @@ function install_package() {
   else
     if [ $(which brew) ]; then
       echo Installing $package with brew...
-      return $(brew install $package)
+      brew install $package
     elif [ $(which apt-get) ]; then
       echo Installing $package with apt-get...
-      return $(sudo apt-get install $package)
+      sudo apt-get install $package
     else
       echo "Could not find package manager to install $package. Skipping."
     fi
