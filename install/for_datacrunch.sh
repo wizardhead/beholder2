@@ -1,5 +1,3 @@
-source ./functions.sh
-
 # DataCrunch.io needed these
 apt-get upgrade python3
 which apt-get && apt-get update
