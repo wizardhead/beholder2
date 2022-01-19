@@ -29,7 +29,7 @@ def crop(input, tl, br, output):
   cmd(['convert', input, '-crop', '{}x{}+{}+{}'.format(br[0] - tl[0], br[1] - tl[1], tl[0], tl[1]), output])
 
 def thumb(input, output, width, height):
-  cmd(['convert', input, '-thumbnail', '{}x{}'.format(width, height), '-background', 'black', '-gravity', 'NorthWest', '-extent', '{}x{}'.format(width, height), output])
+  cmd(['convert', input, '-background', 'black', '-gravity', 'NorthWest', '-extent', '{}x{}'.format(width, height), output])
 
 [width, height] = get_size(args['input'])
 columns = math.ceil(width / args['width'])
