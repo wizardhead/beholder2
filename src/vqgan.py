@@ -248,7 +248,6 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
             while i <= max_iterations:
                 train(i)
                 i += 1
-            checkin(i, ascend_txt())
         except KeyboardInterrupt:
             pass
 
