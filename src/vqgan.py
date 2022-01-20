@@ -199,7 +199,8 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
         static_prompt_models.append(Prompt(embed, weight).to(device))
 
     def interpret_image(in_path, out_path, iterations):
-        util.logger.debug('Interpreting image at {i} iterations'.format(i=iterations))
+        max_iterations = max(iterations)
+        util.logger.debug('Interpreting image up to {i} iterations'.format(i=max_iterations))
 
         # TODO(3xg): Do we always need to perform this conversion?  May increase cost.
         pil_image = Image.open(in_path).convert('RGB')
@@ -218,8 +219,8 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
         def checkin(i, losses):
             losses_str = ', '.join(f'{loss.item():g}' for loss in losses)
             out = synth(z)
-            util.logger.debug('Writing image' + out_path.format(n = i))
-            TF.to_pil_image(out[0].cpu()).save(out_path.format(n = i))
+            util.logger.debug('Writing image' + out_path.format(i))
+            TF.to_pil_image(out[0].cpu()).save(out_path.format(i))
 
         def ascend_txt():
             out = synth(z)
@@ -234,10 +235,8 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
         def train(i):
             opt.zero_grad()
             lossAll = ascend_txt()
-            # TODO(usergenic): Remove this because we aren't using intermediate
-            # displays
-            #if i > 0 and i % DISPLAY_FREQ == 0:
-            #    checkin(i, lossAll)
+            if i in iterations:
+                checkin(i, lossAll)
             loss = sum(lossAll)
             loss.backward()
             opt.step()
@@ -255,8 +254,3 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
 
     return interpret_image
 
- 
-        
-        
-        
-    

@@ -10,7 +10,7 @@ import yaml
 all_args = ArgumentParser(description='Interpret source images.')
 all_args.add_argument('-i', '--input', dest='input', type=str, required=True, help='Path to the folder of images to interpret.')
 all_args.add_argument('-o', '--output', dest='output', type=str, required=True, help='Path to the folder of output images.')
-all_args.add_argument('-n', '--iterations', dest='iterations', type=int, required=True, help='Number of iterations to run.')
+all_args.add_argument('-n', '--iterations', dest='iterations', action='append', type=int, required=True, help='Number of iterations to run. If providing multiple, be sure to include an interpolation mark in a prefix or suffix: {}')
 all_args.add_argument('-p', '--prefix', dest='prefix', type=str, required=False, help='Prefix to add for output image filenames.')
 all_args.add_argument('-s', '--suffix', dest='suffix', type=str, required=False, help='Suffix to add for output image filenames.')
 all_args.add_argument('-t', '--tween', dest='tween', type=int, required=False, help='Tween between iterations, num weighs towards destination frame.')
