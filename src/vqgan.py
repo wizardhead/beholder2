@@ -245,7 +245,7 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
 
         i = 1
         try:
-            while i <= iterations:
+            while i <= max_iterations:
                 train(i)
                 i += 1
             checkin(i, ascend_txt())
