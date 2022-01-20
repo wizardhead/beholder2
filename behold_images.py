@@ -44,6 +44,8 @@ util.logger.info('Found {} images.'.format(total_images))
 
 process_start_time = datetime.datetime.now()
 
+prime_iterations = args.iterations[0]
+
 # Loop through all sorted images
 for i in input_images:
     image_count += 1
@@ -63,16 +65,16 @@ for i in input_images:
     output_image = os.path.join(args.output, output_image)
 
     # Skip generation of image if it already exists, unless force is set
-    if os.path.exists(output_image) and not args.force:
-        util.logger.debug(output_image + ' already exists, skipping.')
-        last_output_image = output_image
+    if os.path.exists(output_image.format(prime_iterations)) and not args.force:
+        util.logger.debug(output_image.format(prime_iterations) + ' already exists, skipping.')
+        last_output_image = output_image.format(prime_iterations)
         continue
 
     input_image_size = image.get_size(input_image)
 
     # If tween is set, generate tween image and make it the input_image
     if last_output_image and args.tween is not None:
-        util.logger.debug('Tweening from {}->[{}]->{}'.format(last_output_image, args.tween, output_image))
+        util.logger.debug('Tweening from {}->[{}]->{}'.format(last_output_image, args.tween, input_image))
         tween_image = util.tempfile(ext)
 
         # This mounting code is necessary if there's a size mismatch between the from/to images
@@ -97,14 +99,16 @@ for i in input_images:
     # Hallucination time!
     interpreter(input_image, output_image, args.iterations)
 
-    # Fix the output image size if necessary.  This also may not be the best
+    # Fix the output image(s) size if necessary.  This also may not be the best
     # way to do this.
-    if image.get_size(output_image) != input_image_size:
-        image.resize(output_image, output_image, input_image_size)
+    if image.get_size(output_image.format(prime_iterations)) != input_image_size:
+        for i in args.iterations:
+            image.resize(output_image.format(i), output_image.format(i), input_image_size)
 
-    last_output_image = output_image
+    last_output_image = output_image.format(prime_iterations)
     image_end_time = datetime.datetime.now()
-    util.logger.info('Generated image {} of {} in {}: {}'.format(image_count, total_images, str(image_end_time - image_start_time), output_image))
+    for i in args.iterations:
+        util.logger.info('Generated image {} of {} in {}: {}'.format(image_count, total_images, str(image_end_time - image_start_time), output_image.format(i)))
 
     # Clean up temp files
     if not tween_image is None:
