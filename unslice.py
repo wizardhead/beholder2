@@ -24,6 +24,8 @@ def get_slices(input_file):
   all_files = os.listdir(input_folder)
   slices = []
   for file in all_files:
+    if file == os.path.basename(input_file):
+      continue
     if str.startswith(file, input_file_noext + '.'):
       slices.append(input_folder + '/' + file)
   slices.sort(key=lambda f: (f.split('.')[-2]+f.split('.')[-3]))
