@@ -3,7 +3,7 @@ import os
 from os.path import abspath, dirname, exists, join
 import pyfiglet
 from subprocess import PIPE, run
-import tempfile
+from tempfile import NamedTemporaryFile, gettempdir
 import uuid
 
 HEADER_FIGLET = pyfiglet.Figlet()
@@ -83,13 +83,13 @@ def system_result(args, cwd=None):
         return run(args, stdout=PIPE, cwd=cwd).stdout.decode('utf-8')
 
 def tempfile(ext):
-    file = tempfile.NamedTemporaryFile(suffix=ext)
+    file = NamedTemporaryFile(suffix=ext)
     name = file.name
     file.close()
     return name
     
 def tempfolder():
-    folder = join(tempfile.gettempdir(), 'beholder_workspaces', str(uuid.uuid4()))
+    folder = join(gettempdir(), 'beholder_workspaces', str(uuid.uuid4()))
     if exists(folder):
         raise Exception('tried to create temp dir, but already exists: ' + folder)
     mkdirp(folder)

@@ -1,7 +1,6 @@
 # This is the CLI for Beholder
 
 from argparse import ArgumentParser
-from tempfile import NamedTemporaryFile
 from src import image, util, vqgan
 import os
 import datetime
