@@ -4,9 +4,6 @@ source ./install/functions.sh
 # TODO(usergenic): consider virtualenv and --user install of dependencies
 # https://gist.github.com/saurabhshri/46e4069164b87a708b39d947e4527298#gistcomment-2271969
 
-if [ $DATACRUNCH ]; then source ./install/for_datacrunch.sh; fi
-
-python3 -m pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 python3 -m pip install -r ./install/pip-package-list.txt
 
 mkdir -p ext/data
