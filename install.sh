@@ -4,8 +4,6 @@ source ./install/functions.sh
 # TODO(usergenic): consider virtualenv and --user install of dependencies
 # https://gist.github.com/saurabhshri/46e4069164b87a708b39d947e4527298#gistcomment-2271969
 
-python3 -m pip install -r ./install/pip-package-list.txt
-
 mkdir -p ext/data
 mkdir -p ext/lib
 
@@ -46,6 +44,8 @@ sym_link ext/lib/taming-transformers taming_transformers
 download_file \
   'https://heibox.uni-heidelberg.de/f/607503859c864bc1b30b/?dl=1' \
   ext/lib/taming-transformers/taming/modules/autoencoder/lpips/vgg.pth
+
+python3 -m pip install -r ./install/pip-package-list.txt
 
 install_package ffmpeg $(which ffmpeg)
 install_package imagemagick $(which convert)
