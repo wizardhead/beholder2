@@ -2,6 +2,7 @@ import sys
 sys.path.append('./taming_transformers')
 
 import math
+import os
 from omegaconf import OmegaConf
 from PIL import Image
 from taming.models import cond_transformer, vqgan
@@ -219,7 +220,7 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
         def checkin(i, losses):
             losses_str = ', '.join(f'{loss.item():g}' for loss in losses)
             out = synth(z)
-            util.logger.debug('Writing image' + out_path.format(i))
+            util.logger.debug('Writing image ' + os.path.basename(out_path.format(i)))
             TF.to_pil_image(out[0].cpu()).save(out_path.format(i))
 
         def ascend_txt():
