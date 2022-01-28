@@ -56,9 +56,11 @@ for i in input_images:
     # Add prefix to output image name
     if args.prefix is not None:
         output_image = args.prefix + output_image
+        [basename, ext] = os.path.splitext(output_image)
     # Add suffix to output image name
     if args.suffix is not None:
         output_image = basename + args.suffix + ext
+        [basename, ext] = os.path.splitext(output_image)
     
     # Compose full output image path
     output_image = os.path.join(args.output, output_image)
