@@ -12,7 +12,7 @@ all_args.add_argument('-o', '--output', dest='output', type=str, required=True, 
 all_args.add_argument('-n', '--iterations', dest='iterations', action='append', type=int, required=True, help='Number of iterations to run. If providing multiple, be sure to include an interpolation mark in a prefix or suffix: {}')
 all_args.add_argument('-c', '--cut-frame', dest='cut_frames', action='append', type=int, required=False, help='Index of frame which represent new shot/cut.')
 all_args.add_argument('-C', '--cut-threshhold', dest='cut_threshold', type=int, required=False, help='Alternate to providing cut frame indices, this is a percentage threshold of image difference to consider a cut.')
-all_args.add_argument('-N', '--cut-iterations', dest='cut_iterations', type=int, required=False, default=0, help='Extra iterations to run on any frame in a new shot/cut (includes starting frame).')
+all_args.add_argument('-N', '--cut-iterations', dest='cut_iterations', type=int, required=False, help='Extra iterations to run on any frame in a new shot/cut (includes starting frame).')
 all_args.add_argument('-p', '--prefix', dest='prefix', type=str, required=False, help='Prefix to add for output image filenames.')
 all_args.add_argument('-s', '--suffix', dest='suffix', type=str, required=False, help='Suffix to add for output image filenames.')
 all_args.add_argument('-t', '--tween', dest='tween', type=int, required=False, help='Tween between iterations, num weighs towards destination frame.')
@@ -85,18 +85,14 @@ for i in input_images:
     elif args.cut_threshold is not None and last_output_image is not None and image.get_difference(last_output_image, input_image) >= args.cut_threshold:
         current_frame_is_a_cut = True
 
-    # When tweening, we have a whole boatload of special logic
-    if args.tween is not None and args.cut_iterations is not None:
-        if current_frame_is_a_cut:
-            # If we're on a cut, we need to generate the tween image
-            tween_image = image.generate_tween(last_output_image, input_image, args.tween, args.cut_iterations)
-            mount_image = image.mount_image(tween_image, input_image)
-        else:
-            # If we're not on a cut, we just need to mount the input image
-            mount_image = image.mount_image(input_image, input_image)
+    iterations_boost = 0
+
+    # When current frame is a cut and tweening is on we will boost the iterations for this frame by cut_iterations
+    if args.tween is not None and args.cut_iterations is not None and current_frame_is_a_cut:
+        iterations_boost = args.cut_iterations
 
     # Generate tween image and make it the input_image *unless* current frame is a cut.
-    if args.tween is not None and last_output_image is not None and not current_frame_is_a_cut:
+    elif args.tween is not None and last_output_image is not None and not current_frame_is_a_cut:
         util.logger.debug('Tweening from {}->[{}]->{}'.format(last_output_image, args.tween, input_image))
         tween_image = util.tempfile(ext)
 
@@ -120,7 +116,7 @@ for i in input_images:
         interpreter = vqgan.generate_interpreter(interpreter_image_size, text_prompts, image_prompts)
 
     # Hallucination time!
-    interpreter(input_image, output_image, args.iterations, args.cut_iterations)
+    interpreter(input_image, output_image, args.iterations, iterations_boost)
 
     # Fix the output image(s) size if necessary.  This also may not be the best
     # way to do this.
