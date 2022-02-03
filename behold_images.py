@@ -134,8 +134,8 @@ for i in input_images:
 
     # Clean up temp files
     if not tween_image is None:
-        tween_image = None
         util.rm(tween_image)
+        tween_image = None
 
 process_end_time = datetime.datetime.now()
 
