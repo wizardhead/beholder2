@@ -27,6 +27,7 @@ print(yaml.dump(args))
 interpreter = None
 interpreter_image_size = None
 
+last_input_image = None
 last_output_image = None
 tween_image = None
 mount_image = None
@@ -72,6 +73,7 @@ for i in input_images:
     # Skip generation of image if it already exists, unless force is set
     if os.path.exists(output_image.format(prime_iterations)) and not args.force:
         util.logger.debug(output_image.format(prime_iterations) + ' already exists, skipping.')
+        last_input_image = input_image
         last_output_image = output_image.format(prime_iterations)
         continue
 
@@ -82,10 +84,11 @@ for i in input_images:
         current_frame_is_a_cut = True
     elif image_count in cut_frames:
         current_frame_is_a_cut = True
-    elif args.cut_threshold is not None and last_output_image is not None and image.get_difference(last_output_image, input_image) >= args.cut_threshold:
+    elif args.cut_threshold is not None and last_input_image is not None and image.get_difference(last_input_image, input_image) >= args.cut_threshold:
         current_frame_is_a_cut = True
 
     iterations_boost = 0
+    last_input_image = input_image
 
     # When current frame is a cut and tweening is on we will boost the iterations for this frame by cut_iterations
     if args.tween is not None and args.cut_iterations is not None and current_frame_is_a_cut:
