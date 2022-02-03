@@ -10,12 +10,12 @@ all_args = ArgumentParser(description='Interpret source images.')
 all_args.add_argument('-i', '--input', dest='input', type=str, required=True, help='Path to the folder(s) of images to interpret.')
 all_args.add_argument('-o', '--output', dest='output', type=str, required=True, help='Path to the folder of output images.')
 all_args.add_argument('-n', '--iterations', dest='iterations', action='append', type=int, required=True, help='Number of iterations to run. If providing multiple, be sure to include an interpolation mark in a prefix or suffix: {}')
+all_args.add_argument('-c', '--cut-frame', dest='cut_frames', action='append', type=int, required=False, help='Index of frame which represent new shot/cut.')
+all_args.add_argument('-C', '--cut-threshhold', dest='cut_threshold', type=int, required=False, help='Alternate to providing cut frame indices, this is a percentage threshold of image difference to consider a cut.')
+all_args.add_argument('-N', '--cut-iterations', dest='cut_iterations', type=int, required=False, default=0, help='Extra iterations to run on any frame in a new shot/cut (includes starting frame).')
 all_args.add_argument('-p', '--prefix', dest='prefix', type=str, required=False, help='Prefix to add for output image filenames.')
 all_args.add_argument('-s', '--suffix', dest='suffix', type=str, required=False, help='Suffix to add for output image filenames.')
 all_args.add_argument('-t', '--tween', dest='tween', type=int, required=False, help='Tween between iterations, num weighs towards destination frame.')
-all_args.add_argument('-c', '--cut-frame', dest='cut_frames', action='append', type=int, required=False, help='Index of frame which represent new shot/cut.')
-all_args.add_argument('-C', '--cut-threshhold', dest='cut_threshold', type=int, required=False, help='Alternate to providing cut frame indices, this is a percentage threshold of image difference to consider a cut.')
-all_args.add_argument('-N', '--cut-iterations', dest='cut_iterations', type=int, required=False, help='Extra iterations to run on any frame in a new shot/cut (includes starting frame).')
 all_args.add_argument('-I', '--image-prompts', action='append', dest='image_prompts', type=str, required=False, help='Image prompt path for GAN.')
 all_args.add_argument('-T', '--text-prompts', action='append', dest='text_prompts', type=str, required=False, help='Text prompt for GAN.')
 all_args.add_argument('-f', '--force', dest='force', required=False, default=False, type=bool, help='Force overwrite of output images.')
@@ -33,6 +33,7 @@ mount_image = None
 
 image_prompts = args.image_prompts or []
 text_prompts = args.text_prompts or []
+cut_frames = args.cut_frames or []
 
 input_images = os.listdir(args.input)
 
@@ -76,8 +77,26 @@ for i in input_images:
 
     input_image_size = image.get_size(input_image)
 
-    # If tween is set, generate tween image and make it the input_image
-    if last_output_image and args.tween is not None:
+    current_frame_is_a_cut = False
+    if image_count == 1:
+        current_frame_is_a_cut = True
+    elif image_count in cut_frames:
+        current_frame_is_a_cut = True
+    elif args.cut_threshold is not None and last_output_image is not None and image.get_difference(last_output_image, input_image) >= args.cut_threshold:
+        current_frame_is_a_cut = True
+
+    # When tweening, we have a whole boatload of special logic
+    if args.tween is not None and args.cut_iterations is not None:
+        if current_frame_is_a_cut:
+            # If we're on a cut, we need to generate the tween image
+            tween_image = image.generate_tween(last_output_image, input_image, args.tween, args.cut_iterations)
+            mount_image = image.mount_image(tween_image, input_image)
+        else:
+            # If we're not on a cut, we just need to mount the input image
+            mount_image = image.mount_image(input_image, input_image)
+
+    # Generate tween image and make it the input_image *unless* current frame is a cut.
+    if args.tween is not None and last_output_image is not None and not current_frame_is_a_cut:
         util.logger.debug('Tweening from {}->[{}]->{}'.format(last_output_image, args.tween, input_image))
         tween_image = util.tempfile(ext)
 
@@ -101,7 +120,7 @@ for i in input_images:
         interpreter = vqgan.generate_interpreter(interpreter_image_size, text_prompts, image_prompts)
 
     # Hallucination time!
-    interpreter(input_image, output_image, args.iterations)
+    interpreter(input_image, output_image, args.iterations, args.cut_iterations)
 
     # Fix the output image(s) size if necessary.  This also may not be the best
     # way to do this.
