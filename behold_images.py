@@ -7,12 +7,15 @@ import datetime
 import yaml
 
 all_args = ArgumentParser(description='Interpret source images.')
-all_args.add_argument('-i', '--input', dest='input', type=str, required=True, help='Path to the folder of images to interpret.')
+all_args.add_argument('-i', '--input', dest='input', type=str, required=True, help='Path to the folder(s) of images to interpret.')
 all_args.add_argument('-o', '--output', dest='output', type=str, required=True, help='Path to the folder of output images.')
 all_args.add_argument('-n', '--iterations', dest='iterations', action='append', type=int, required=True, help='Number of iterations to run. If providing multiple, be sure to include an interpolation mark in a prefix or suffix: {}')
 all_args.add_argument('-p', '--prefix', dest='prefix', type=str, required=False, help='Prefix to add for output image filenames.')
 all_args.add_argument('-s', '--suffix', dest='suffix', type=str, required=False, help='Suffix to add for output image filenames.')
 all_args.add_argument('-t', '--tween', dest='tween', type=int, required=False, help='Tween between iterations, num weighs towards destination frame.')
+all_args.add_argument('-c', '--cut-frame', dest='cut_frames', action='append', type=int, required=False, help='Index of frame which represent new shot/cut.')
+all_args.add_argument('-C', '--cut-threshhold', dest='cut_threshold', type=int, required=False, help='Alternate to providing cut frame indices, this is a percentage threshold of image difference to consider a cut.')
+all_args.add_argument('-N', '--cut-iterations', dest='cut_iterations', type=int, required=False, help='Extra iterations to run on any frame in a new shot/cut (includes starting frame).')
 all_args.add_argument('-I', '--image-prompts', action='append', dest='image_prompts', type=str, required=False, help='Image prompt path for GAN.')
 all_args.add_argument('-T', '--text-prompts', action='append', dest='text_prompts', type=str, required=False, help='Text prompt for GAN.')
 all_args.add_argument('-f', '--force', dest='force', required=False, default=False, type=bool, help='Force overwrite of output images.')

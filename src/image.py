@@ -19,6 +19,9 @@ def contrast(in_path, amount, out_path):
         *(['-contrast' if amount > 0 else '+contrast'] * abs(amount)),
         out_path])
 
+def get_difference(img_1, img_2, out_path):
+    return int(util.cmd(['./image-compare.sh', img_1, img_2]))
+
 def get_size(image_path):
     [w, h] = util.cmd([
         'identify',

@@ -199,8 +199,8 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
         embed = torch.empty([1, perceptor.visual.output_dim]).normal_(generator=gen)
         static_prompt_models.append(Prompt(embed, weight).to(device))
 
-    def interpret_image(in_path, out_path, iterations):
-        max_iterations = max(iterations)
+    def interpret_image(in_path, out_path, iterations, iterations_boost=0):
+        max_iterations = max(iterations) + iterations_boost
         util.logger.debug('Interpreting image up to {i} iterations'.format(i=max_iterations))
 
         # TODO(3xg): Do we always need to perform this conversion?  May increase cost.
@@ -220,8 +220,8 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
         def checkin(i, losses):
             losses_str = ', '.join(f'{loss.item():g}' for loss in losses)
             out = synth(z)
-            util.logger.debug('Writing image ' + os.path.basename(out_path.format(i)))
-            TF.to_pil_image(out[0].cpu()).save(out_path.format(i))
+            util.logger.debug('Writing image ' + os.path.basename(out_path.format(i-iterations_boost)))
+            TF.to_pil_image(out[0].cpu()).save(out_path.format(i-iterations_boost))
 
         def ascend_txt():
             out = synth(z)
@@ -236,7 +236,7 @@ def generate_interpreter(image_size, prompts=[], image_prompts=[]):
         def train(i):
             opt.zero_grad()
             lossAll = ascend_txt()
-            if i in iterations:
+            if i-iterations_boost in iterations:
                 checkin(i, lossAll)
             loss = sum(lossAll)
             loss.backward()
