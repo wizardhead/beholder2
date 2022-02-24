@@ -37,7 +37,7 @@ rows = math.ceil(height / args['height'])
 
 for column in range(0, columns):
   for row in range(0, rows):
-    output_file_slice = output_file_noext + '.{:04d}.{:04d}{}'.format(column, row, output_file_ext)
+    output_file_slice = output_file + '.{:04d}.{:04d}{}'.format(column, row, output_file_ext)
     print('Cropping ' + output_file_slice)
     crop(input_file, (column * args['width'], row * args['height']), ((column + 1) * args['width'], (row + 1) * args['height']), output_file_slice)
     thumb(output_file_slice, output_file_slice, args['width'], args['height'])
